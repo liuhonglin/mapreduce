@@ -4,9 +4,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
@@ -17,11 +17,12 @@ public class WordCountMapReduce {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 
+
         // 创建配置对象
         Configuration conf = new Configuration();
 
         // 创建Job对象
-        Job job = Job.getInstance(conf, "");
+        Job job = Job.getInstance(conf, "job_wordcount");
 
         // 设置运行job的主类
         job.setJarByClass(WordCountMapReduce.class);
@@ -39,11 +40,9 @@ public class WordCountMapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
-        JobConf jobConf = new JobConf();
-
-
         // 设置输入输出的路径
-        //FileInputFormat.setInputPaths(job, new Path("hdfs://10.127.92.182:8020/words"));
+        FileInputFormat.addInputPath(job, new Path("words"));
+        FileOutputFormat.setOutputPath(job, new Path("wc_output1"));
 
         // 提交job
         boolean b = job.waitForCompletion(true);
@@ -51,5 +50,6 @@ public class WordCountMapReduce {
         if (!b) {
             System.out.println("this task failed!!!");
         }
+
     }
 }
