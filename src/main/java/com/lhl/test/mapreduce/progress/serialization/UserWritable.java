@@ -24,7 +24,7 @@ public class UserWritable implements Writable {
 
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeLong(id);
-        dataOutput.writeChars(name);
+        dataOutput.writeUTF(name);
         dataOutput.writeInt(inCome);
         dataOutput.writeInt(expenses);
         dataOutput.writeInt(sum);
@@ -32,7 +32,7 @@ public class UserWritable implements Writable {
 
     public void readFields(DataInput dataInput) throws IOException {
         this.id = dataInput.readLong();
-        this.name = dataInput.readLine();
+        this.name = dataInput.readUTF();
         this.inCome = dataInput.readInt();
         this.expenses = dataInput.readInt();
         this.sum = dataInput.readInt();

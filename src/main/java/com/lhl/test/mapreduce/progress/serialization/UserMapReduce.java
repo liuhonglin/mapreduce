@@ -1,12 +1,20 @@
 package com.lhl.test.mapreduce.progress.serialization;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * 测试数据：
@@ -83,7 +91,34 @@ public class UserMapReduce {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
+        Configuration configuration = new Configuration();
+
+        Job job = Job.getInstance(configuration, "userJob");
+
+        job.setJarByClass(UserMapReduce.class);
+
+        job.setMapperClass(UserMaper.class);
+        job.setReducerClass(UserReduce.class);
+
+        job.setMapOutputKeyClass(LongWritable.class);
+        job.setMapOutputValueClass(UserWritable.class);
+
+        job.setOutputKeyClass(UserWritable.class);
+        job.setOutputValueClass(NullWritable.class);
+
+        FileInputFormat.setInputPaths(job, new Path("usercount"));
+
+        FileSystem fs = FileSystem.get(URI.create("hdfs://10.127.92.182:9000"), configuration);
+        fs.deleteOnExit(new Path("useroutput"));
+
+        FileOutputFormat.setOutputPath(job, new Path("useroutput"));
+
+        boolean result = job.waitForCompletion(true);
+
+        if (!result) {
+            System.err.println("userJob Failed!!!");
+        }
 
     }
 }
